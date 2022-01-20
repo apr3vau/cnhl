@@ -37,10 +37,12 @@ cnhl——中文词性高亮工具
 - [[https://emacs-china.org/u/twlz0ne][@twlz0ne]]
 
 
+
 #+BEGIN_QUOTE
 欲寄彩笺兼尺素，山长水阔知何处？ —— （北宋）晏殊
 #+END_QUOTE
-愿这个小插件能为你的世界增添一抹别样的色彩。
+愿这个小插件能为你的文思增添一抹别样的色彩。
+
 *** 安装
 **** 配置环境
 
@@ -51,7 +53,7 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 #+END_SRC
 
 注意，THULAC的部分代码在 =Python 3.8= 及以上版本中已经过时，可以根据以下步骤修改。否则运行时可能会报 =AttributeError: module 'time' has no attribute 'clock'= 错误。
-1. 前往python库文件的安装路径 （例如 =/usr/local/lib/python3.9=）；
+1. 前往python库文件的安装路径 （例如 =/usr/local/lib/python3.9= ）；
 2. 在 =./thulac/characetr/CBTaggingDecoder.py= 的第170行左右，将：
    #+BEGIN_SRC python
      start = time.start()
@@ -127,7 +129,7 @@ To install =thulac=, use:
 #+END_SRC
 
 For =Python 3.8= and above, you need to repaire out-dated code in =thulac= by yourself,
-or may received =AttributeError: module 'time' has no attribute 'clock'=:
+or may received =AttributeError: module 'time' has no attribute 'clock'= :
 1. Go to your Python's library path (for example, =/usr/local/lib/python3.9=);
 2. Edit =./thulac/characetr/CBTaggingDecoder.py=, about the 170 line:
    #+BEGIN_SRC python
