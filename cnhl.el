@@ -165,6 +165,7 @@
       ))
 
 (defun cnhl-forward-word ()
+  "向前移动一个词"
   (interactive)
   (if (member major-mode *cnhl-major-mode*)
       ;; 前往本词词末，即下一词词首
@@ -173,6 +174,7 @@
     (forward-word)))
 
 (defun cnhl-backward-word ()
+  "向后移动一个词"
   (interactive)
   (if (member major-mode *cnhl-major-mode*)
       ;; 光标在句首时，无法抓到上一句的标点，手动将光标前移
@@ -183,6 +185,7 @@
     (backward-word)))
 
 (defun cnhl-backward-kill-word ()
+  "向后删除一个词"
   (interactive)
   (if (member major-mode *cnhl-major-mode*)
       (progn (when (= (point) (line-beginning-position))
@@ -200,6 +203,7 @@
     (backward-kill-word 1)))
 
 (defun cnhl-kill-word ()
+  "向前删除一个词"
   (interactive)
   (if (member major-mode *cnhl-major-mode*)
       (let ((result (cnhl--current-word-info)))
