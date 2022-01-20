@@ -67,7 +67,7 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 **** 安装cnhl.el
 
 将 =cnhl.el= 加入emacs的 =load-path=，之后在配置文件中加入:
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (require 'cnhl)
 #+END_SRC
 以加载cnhl。
@@ -75,7 +75,7 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 *** 使用
 
 若要在输入过程中实时高亮输入内容，请在配置文件中加入：
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (add-hook 'after-change-functions #'cnhl-sentence-timely)
 #+END_SRC
 
@@ -95,7 +95,7 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 | cnhl-kill-word          | 向前删除一个词                             | M-d      |
 
 默认配色适用于暗色主题。亮色主题可以使用以下配置：
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (set-face-foreground 'cnhl-n-r-j "#7D1F00")
   (set-face-foreground 'cnhl-a "#253E62")
   (set-face-foreground 'cnhl-f-s-t-m-q-mq "#613900")
@@ -106,7 +106,7 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 #+END_SRC
 
 如果觉得上面的色彩太过鲜艳，可以使用对比度较低的：
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (set-face-foreground 'cnhl-n-r-j "#4D1300")
   (set-face-foreground 'cnhl-a "#232346")
   (set-face-foreground 'cnhl-f-s-t-m-q-mq "#5E482A")
@@ -143,14 +143,14 @@ Then it would work normally.
 
 **** cnhl.el
 Put =cnhl.el= to your =load-path=, then add:
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (require 'cnhl)
 #+END_SRC
 to your profile.
 
 *** Usage
 To highlight sentence when typing, add:
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (add-hook 'after-change-functions #'cnhl-sentence-timely)
 #+END_SRC
 to your profile;
@@ -171,7 +171,7 @@ Functions:
 | cnhl-kill-word          | Delete one word forward.                                                   | M-d         |
 
 Default color is for dark theme. If you are in light theme, you can use:
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (set-face-foreground 'cnhl-n-r-j "#7D1F00")
   (set-face-foreground 'cnhl-a "#253E62")
   (set-face-foreground 'cnhl-f-s-t-m-q-mq "#613900")
@@ -182,7 +182,7 @@ Default color is for dark theme. If you are in light theme, you can use:
 #+END_SRC
 
 For low contrast:
-#+BEGIN_SRC lisp
+#+BEGIN_SRC elisp
   (set-face-foreground 'cnhl-n-r-j "#4D1300")
   (set-face-foreground 'cnhl-a "#232346")
   (set-face-foreground 'cnhl-f-s-t-m-q-mq "#5E482A")
