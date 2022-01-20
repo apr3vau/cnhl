@@ -22,11 +22,16 @@
 
 ;;; Commentary:
 ;; A Emacs trick to make Chinese highlight lexically.
+;;
+;; It used THULAC (THU Lexical Analyzer for Chinese) by Tsinghua University.
+;; Maosong Sun, Xinxiong Chen, Kaixu Zhang, Zhipeng Guo, Zhiyuan Liu. THULAC: An Efficient Lexical Analyzer for Chinese. 2016.
+;;
 ;; For more infomation, read https://github.com/3vau/cnhl/blob/main/README.md
 ;; and https://emacs-china.org/t/topic/18977/38
+;;
 ;; Thanks to people who helped me:
-;;  @LdBeth https://emacs-china.org/u/LdBeth
-;;  @cireu https://emacs-china.org/u/cireu
+;;  @LdBeth http://ldbeth.sdf.org/
+;;  @cireu https://citreu.gitlab.io/
 ;;  @twlz0ne https://emacs-china.org/u/twlz0ne
 
 ;;; Code:
@@ -92,6 +97,13 @@
 
 (defvar *cnhl-hl-enable* t
   "是否启用高亮，用于仅分词的情况")
+
+(defun cnhl-hl-switch ()
+  "启用/禁用中文高亮"
+  (interactive)
+  (if *cnhl-hl-enable*
+      (setq *cnhl-hl-enable* nil)
+    (setq *cnhl-hl-enable* t)))
 
 (defvar *cnhl-last-info*
   (list :beg nil :end nil :result nil :buffer nil)
@@ -254,7 +266,8 @@
     (goto-char (plist-get *cnhl-last-info* :beg))
     ;; 设变量num，从0开始遍历所有分析出的词语
     (cl-loop for num = 0 then (1+ num)
-	     with output = (json-parse-string (plist-get *cnhl-last-info* :result))
+	     with output = (condition-case err (json-parse-string (plist-get *cnhl-last-info* :result))
+			     (t (cl-return)))
 	     do (condition-case err
 		    ;; 选取item为output数组中的第num个词的分析结果，格式为数组，第0项为词语，第1项为词性标识
 		    (let* ((item (aref output num))
@@ -309,7 +322,7 @@
   "记录本次语句高亮的起始点")
 
 (defun cnhl-sentence ()
-  "对当前句进行中文词性高亮"
+  "对光标所在句进行中文词性高亮"
   (interactive)
   (save-excursion
     ;; 生成句读匹配的正则，不能把group置于or的外侧，否则会导致在句末的高亮报错（可能与返回值有关）
