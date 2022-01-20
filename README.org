@@ -55,8 +55,10 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 注意，THULAC的部分代码在 =Python 3.8= 及以上版本中已经过时，可以根据以下步骤修改。否则运行时可能会报 =AttributeError: module 'time' has no attribute 'clock'= 错误。
 1. 前往python库文件的安装路径 （例如 =/usr/local/lib/python3.9= ）；
 2. 在 =./thulac/characetr/CBTaggingDecoder.py= 的第170行左右，将：
-   #+BEGIN_SRC python
-     start = time.start()
+
+
+#+BEGIN_SRC python
+  start = time.start()
 #+END_SRC
 改为：
 #+BEGIN_SRC python
@@ -120,6 +122,9 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 
 *** 已知问题
 - [ ] 若当前行过长，则 =cnhl= 函数无法正常工作，进而影响到 =cnhl-buffer= ；
+
+
+cnhl含有详细的中文注释，欢迎一切形式的意见、交流和帮助！
 
 ** English
 *** Install
