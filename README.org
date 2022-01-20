@@ -118,6 +118,9 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 
 这里提供的配色可能并不是很合你的胃口，如果想自己配置，可以使用Adobe Color作为辅助工具：[[https://color.adobe.com/]]
 
+*** 已知问题
+- [ ] 若当前行过长，则 =cnhl= 函数无法正常工作，进而影响到 =cnhl-buffer= ；
+
 ** English
 *** Install
 **** Environment
