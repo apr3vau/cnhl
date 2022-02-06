@@ -62,7 +62,7 @@ cnhl需要安装了 =thulac= 包的 =python3= 作为词法分析后端，
 #+END_SRC
 改为：
 #+BEGIN_SRC python
-  start = time.pref_counter()
+  start = time.perf_counter()
 #+END_SRC
 之后THULAC便可以正常运行。
 
@@ -145,7 +145,7 @@ or may received =AttributeError: module 'time' has no attribute 'clock'= :
 #+END_SRC
 To:
 #+BEGIN_SRC python
-  start = time.pref_counter()
+  start = time.perf_counter()
 #+END_SRC
 Then it would work normally.
 
