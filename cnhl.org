@@ -1,0 +1,950 @@
+* cnhl
+
+Chinese Highlight ——中文语法高亮与分词工具
+
+#+BEGIN_QUOTE
+欲寄彩笺兼尺素，山长水阔知何处？ —— （北宋）晏殊
+#+END_QUOTE
+
+愿这个小工具能为你的文思增添一抹别样的色彩。
+
+** 项目简介
+
+Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中如同代码高亮一般根据
+词性高亮中文文本，亦可以进行按词移动、按词编辑等操作。
+
+** 安装方法
+
+*** 第一步：下载本 Org 的源文件
+
+将本 Org 文件下载到电脑或 Termux 里并用 Emacs 打开。
+
+对于 [[https://github.com/3vau/cnhl][Cnhl Github 项目]]，可以克隆仓库或者复制 Raw 原始文件并 **按下 =C-x C-s= 把它
+保存到任何位置** ；
+
+对于[[http://rosa.sdf.org][我的个人网站]]，可以访问[[http://rosa.sdf.org/rosa.org][这里]]获取网页源 Org 文件，并翻到这个位置。
+
+*** 第二步：导出源代码
+
+将下面这段代码中第一行 =cnhl-export-dir= 的值改为你想将 =cnhl= 安装到的位置，之
+后在代码块中按下 =C-c C-c= 执行。 =Cnhl= 的源码将导出到你所设置的文件夹下。
+
+在这个过程中 =Cnhl= 会编译 dynamic module ，请确保你的电脑上有 gcc 或其它编译工
+具。
+
+#+begin_src emacs-lisp :tangle no
+  (defvar cnhl-export-dir "~/path/to/export/dir")
+
+  (setq cnhl-export-path
+	(file-name-concat cnhl-export-dir "cnhl.el"))
+
+  (setq cnhl-thulac-export-path
+	(file-name-concat cnhl-export-dir "cnhl-thulac.cpp"))
+
+  (org-babel-tangle-file (buffer-file-name))
+
+  (cd cnhl-export-dir)
+
+  (async-shell-command
+   "git clone --depth 1 https://github.com/thunlp/THULAC.git ; g++ -c -I ./thulac/include -std=c++11 cnhl-thulac.cpp ; g++ -shared cnhl-thulac.o -o cnhl-thulac.so ; rm -rf cnhl-thulac.c cnhl-thulac.o thulac/"
+   "*Cnhl Compile Module*")
+#+end_src
+
+*** 第三步：配置 NLP 工具
+
+根据你所选择的 NLP 工具，进行下面的设置：
+
+（目前仅支持 =THULAC= 工具，更多后端支持正在开发 QwQ ……）
+
+**** =THULAC= 词法分析工具
+
+#+begin_quote
+THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与社会人文计算实
+验室研制推出的一套中文词法分析工具包，具有中文分词和词性标注功能。
+
+孙茂松, 陈新雄, 张开旭, 郭志芃, 刘知远. THULAC：一个高效的中文词法分析工具包. 2016.
+#+end_quote
+
+=THULAC= 提供中文词法分析功能。使用 =THULAC= 作为后端时， =Cnhl= 将按照词语的词
+性对其进行高亮，并按照不同词性的分词进行按词跳转。
+
+=Cnhl= 使用 C++ 版 =THULAC= 作为后端，使用前需要手动下载 =THULAC= 模型并告知
+=Cnhl= 模型所在的文件夹。
+
+可以前往 [[http://thulac.thunlp.org/message_v1_2][THULAC 官网]] 填写信息以下载 THULAC v1.2 算法模型压缩包，解压后得到的
+=models= 文件夹下的即为算法模型。
+
+（如果不愿填写信息，可以[[mailto:rosa@sdf.org][联系我]]。）
+
+下载并解压 =THULAC= 模型后，将下面这段代码中 =cnhl-thulac-module-path= 的值改为
+模型所在目录，按下 =C-c C-c= 执行，并将这段代码复制到你的配置文件中。
+
+#+begin_src emacs-lisp :tangle no
+  (setq cnhl-thulac-module-path "~/path/to/module/dir")
+#+end_src
+
+*** 第四步：加载并体验 =Cnhl=
+
+在以下代码块中按下 =C-c C-c= ， =Cnhl= 工具将被加载并在当前 buffer 启用。
+
+（如果你的 Emacs 在执行这段代码后闪退了，可以尝试一行一行地慢一点执行。）
+
+你可以输入一些文字来测试实时高亮的效果，按下 =M-f= 、 =M-b= 来测试按词操作的效果，
+或测试以 =cnhl-hl-= 为开头的手动高亮命令的效果。
+
+（注意，手动高亮命令不需要开启 =cnhl-mode= 就可以使用。）
+
+#+begin_src emacs-lisp :tangle no
+  (add-to-list 'load-path cnhl-export-dir)
+
+  (require 'cnhl)
+
+  (cnhl-mode)
+#+end_src
+
+*** 第五步：持久化配置
+
+将你在第二步时设置的导出位置加入 =load-path= ，并 =(require 'cnhl)= 以在启动时加
+载 =Cnhl= 。
+
+#+begin_src emacs-lisp :tangle no
+  ;; (add-to-list 'load-path "~/path/to/export/dir")
+  (require 'cnhl)
+#+end_src
+
+将一些配置加入你的 Emacs 配置文件来提升 =Cnhl= 的使用体验：
+
+
+以下配置可以在 =org-mode= 下自动开启 =cnhl-mode= ：
+
+#+begin_src emacs-lisp :tangle no
+  (add-hook 'org-mode-hook 'cnhl-mode)
+#+end_src
+
+以下配置在纯文本（ =.txt= ）编辑中自动开启 =cnhl-mode= ：
+
+#+begin_src emacs-lisp :tangle no
+  (add-hook 'text-mode-hook 'cnhl-mode)
+#+end_src
+
+** 使用注意
+
+实时输入高亮和按词操作只有在 =cnhl-mode= 下才会启用，但以 =cnhl-hl-= 开头的手动
+高亮函数在 =(require 'cnhl)= 后即可使用，不需要开启 =cnhl-mode= 。
+
+词法分析所分出的单个词都非常短，大多数只有一字到两字长。平日里编辑文字时可以用按
+词移动将光标移动完全替代。
+
+本工具在使用 THULAC 后端时对 CPU 资源的占用相当少，相较于使用 Emacs 原生函数几乎
+没有可见的差别，可以放心食用~
+
+任何 NLP 工具，其结果皆不会绝对准确。甚至在某些情况下会有不小的错误率。 =Cnhl=
+标注的结果仅供参考。
+
+如果你有任何建议，或发现了 =Cnhl= 的任何问题，都可以[[https://emacs-china.org/u/3vau/summary][联系我]]。
+
+目前在做的增强功能：使用 =fastHan= 进行句法分析；获取光标所在词的词性；
+
+** 致谢
+
+感谢Emacs China论坛前辈们的热心帮助：
+- [[http://ldbeth.sdf.org/][@LdBeth]]
+- [[https://citreu.gitlab.io/][@cireu]]
+- [[https://emacs-china.org/u/twlz0ne][@twlz0ne]]
+
+感谢大家对 =Cnhl= 的开发提出的建议和问题：
+- [[https://emacs-china.org/u/snail_xhr][@snail_xhr]]
+- [[https://emacs-china.org/u/K-gihu][@K-gihu]]
+- [[https://emacs-china.org/u/p1uxtar][@p1uxtar]]
+- [[https://emacs-china.org/u/ISouthRain][ISouthRain]]
+
+感谢大家的使用、鼓励与认可！
+
+---
+
+本程序使用了 [[http://thulac.thunlp.org][THULAC：一个高效的中文词法分析工具包]]，谨在此致以感谢：
+
+#+begin_quote
+孙茂松, 陈新雄, 张开旭, 郭志芃, 刘知远. THULAC：一个高效的中文词法分析工具包. 2016.
+#+end_quote
+
+** GPL-3.0 声明
+
+This file is not part of GNU Emacs.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+** =Cnhl= Emacs 部分源代码
+
+以下是 cnhl 的源码，以文学编程的方式较为详细地写出了每个功能的设计思路和实现方式，
+可以放心食用~
+
+*** 头部注释
+
+包含 GPL 声明和英文简介啊什么的，例行公事~
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  ;;; cnhl.el --- Make Chinese highlight lexically -*- lexical-binding: t -*-
+
+  ;; Copyright (C) 2022 Rosario S.E.
+
+  ;; Author: Rosario S.E. <ser3vau@gmail.com>
+  ;; URL: https://github.com/3vau/cnhl
+
+  ;; This file is not part of GNU Emacs.
+  ;;
+  ;; This program is free software; you can redistribute it and/or modify
+  ;; it under the terms of the GNU General Public License as published by
+  ;; the Free Software Foundation, either version 3 of the License, or
+  ;; (at your option) any later version.
+
+  ;; This program is distributed in the hope that it will be useful,
+  ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ;; GNU General Public License for more details.
+
+  ;; You should have received a copy of the GNU General Public License
+  ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+  ;;; Commentary:
+  ;; A Emacs trick to make Chinese highlight lexically.
+  ;;
+  ;; It used THULAC (THU Lexical Analyzer for Chinese) by Tsinghua University.
+  ;; Maosong Sun, Xinxiong Chen, Kaixu Zhang, Zhipeng Guo, Zhiyuan Liu. THULAC: An Efficient Lexical Analyzer for Chinese. 2016.
+  ;;
+  ;; For more infomation, read https://github.com/3vau/cnhl/blob/main/README.md
+  ;; and https://emacs-china.org/t/topic/18977/38
+  ;;
+  ;; Thanks to people who helped me:
+  ;;  @LdBeth http://ldbeth.sdf.org/
+  ;;  @cireu https://citreu.gitlab.io/
+  ;;  @twlz0ne https://emacs-china.org/u/twlz0ne
+
+  ;;; Code:
+#+end_src
+
+*** 设置 NLP
+
+NLP 是“自然语言处理”的缩写， Cnhl 使用第三方 NLP 工具作为后端来解析中文语句，以
+进行中文语法高亮。
+
+**** 选择 NLP
+
+设置 =cnhl-nlp-selected= 变量以选择要使用的 NLP 工具。
+
+目前 Cnhl 支持的 NLP 工具有： THULAC
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-nlp-selected 'thulac)
+#+end_src
+
+**** 针对选择的 NLP 进行特别设置
+
+***** THULAC
+
+****** 设置 THULAC 分词模型的路径
+
+请将 =cnhl-thulac-module-path= 变量设置为 THULAC 算法模型文件夹的位置。
+
+可以前往 [[http://thulac.thunlp.org/message_v1_2][THULAC 官网]] 下载 THULAC v1.2 算法模型压缩包，解压后得到的 =models= 文件
+夹即为模型文件夹。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-thulac-module-path
+    (expand-file-name "~/.emacs.d/thulac-model/models"))
+#+end_src
+
+**** 初始化 NLP 并绑定对应的函数
+
+大多数 NLP 工具都需要初始化，将算法模型读入内存，才可以进行使用。
+
+该函数将被未经初始化的 NLP 分析函数调用，并在初始化指定 NLP 后通过 =advice= 的方
+式将抽象的 NLP 分析函数映射到对应 NLP 的专用分析函数上。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-nlp-init ()
+    (advice-remove 'cnhl-nlp-analyse-sentence 'analyse-func)
+    (advice-remove 'cnhl-nlp-get-overlay 'overlay-func)
+    (let ((functions
+           (pcase cnhl-nlp-selected
+             ('thulac (progn (cnhl-nlp-init-thulac)
+                             (list #'cnhl-thulac-analyse-sentence
+                                   #'cnhl-thulac-get-overlay))))))
+      (advice-add 'cnhl-nlp-analyse-sentence
+                  :override (pop functions)
+                  (list (cons 'name 'analyse-func)))
+      (advice-add 'cnhl-nlp-get-overlay
+                  :override (pop functions)
+                  (list (cons 'name 'overlay-func)))))
+#+end_src
+
+***** THULAC 的初始化
+
+该函数将初始化 THULAC 工具。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-nlp-init-thulac ()
+    (add-to-list 'load-path "/Users/rosa/.emacs.d/test/") ;; in testing
+    (require 'cnhl-thulac)
+    (cnhl-thulac-module-init cnhl-thulac-module-path))
+#+end_src
+
+**** THULAC 的相关设置
+
+Cnhl 使用 dynamic module 方式调用 C++ 版 THULAC 进行词法分析。
+
+*** 高亮主题的定义与相关方法
+
+**** 定义高亮主题色
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defgroup cnhl nil
+    "Cnhl 高亮颜色。"
+    :group 'cnhl)
+  (defface cnhl-face-1
+    '((t (:foreground "#FFCCCC")))
+    "第一种，在 THULAC 中是名词、代词、简称颜色"
+    :group 'cnhl)
+  (defface cnhl-face-2
+    '((t (:foreground "#BFEBE0")))
+    "第二种，在 THULAC 中是动词、习语颜色"
+    :group 'cnhl)
+  (defface cnhl-face-3
+    '((t (:foreground "#C6EAFF")))
+    "第三种，在 THULAC 中是形容词颜色"
+    :group 'cnhl)
+  (defface cnhl-face-4
+    '((t (:foreground "#F8DEC0")))
+    "第四种，在 THULAC 中是方位词、处所词、时间词、数词、量词、数量词颜色"
+    :group 'cnhl)
+  (defface cnhl-face-5
+    '((t (:foreground "#DFDFB0")))
+    "第五种，在 THULAC 中是副词、连词、介词颜色"
+    :group 'cnhl)
+  (defface cnhl-face-6
+    '((t (:foreground "#E5CFEF")))
+    "第六种，在 THULAC 中是助词、语气助词、前接成分、后接成分颜色"
+    :group 'cnhl)
+  (defface cnhl-face-7
+    '((t (:foreground "gray85")))
+    "第七种，在 THULAC 中是语素、标点、叹词、拟声词及其它颜色"
+    :group 'cnhl)
+
+  ;; dark
+
+  (set-face-foreground 'cnhl-face-1 "#5F0000")
+  (set-face-foreground 'cnhl-face-2 "#184034")
+  (set-face-foreground 'cnhl-face-3 "#093060")
+  (set-face-foreground 'cnhl-face-4 "#5D3026")
+  (set-face-foreground 'cnhl-face-5 "#3F3000")
+  (set-face-foreground 'cnhl-face-6 "#541F4F")
+  (set-face-foreground 'cnhl-face-7 "gray15")
+#+end_src
+
+******* 建立每个颜色的第一个 overlay
+
+此后所有高亮所使用的 overlay 皆复制于这里。这是为了避免 =Invalid face reference=
+错误。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-overlay-1 (make-overlay 1 1))
+  (defvar cnhl-overlay-2 (make-overlay 1 1))
+  (defvar cnhl-overlay-3 (make-overlay 1 1))
+  (defvar cnhl-overlay-4 (make-overlay 1 1))
+  (defvar cnhl-overlay-5 (make-overlay 1 1))
+  (defvar cnhl-overlay-6 (make-overlay 1 1))
+  (defvar cnhl-overlay-7 (make-overlay 1 1))
+
+  (overlay-put cnhl-overlay-1 'face 'cnhl-face-1)
+  (overlay-put cnhl-overlay-2 'face 'cnhl-face-2)
+  (overlay-put cnhl-overlay-3 'face 'cnhl-face-3)
+  (overlay-put cnhl-overlay-4 'face 'cnhl-face-4)
+  (overlay-put cnhl-overlay-5 'face 'cnhl-face-5)
+  (overlay-put cnhl-overlay-6 'face 'cnhl-face-6)
+  (overlay-put cnhl-overlay-7 'face 'cnhl-face-7)
+
+  ;; (setq cnhl-export-path "~/.emacs.d/cnhl.el")
+  ;; (org-babel-tangle-file "~/rosa.org")
+  ;; (load "~/.emacs.d/cnhl.el")
+#+end_src
+
+**** 从词性代号返回对应高亮颜色的 overlay
+
+建立一个词性代号的首字母与原始 overlay 的 alist 对应关系列表，通过查询该列表来获
+取某词性应贴的 overlay 。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-nlp-get-overlay (str)
+    (cnhl-nlp-init)
+    (cnhl-nlp-get-overlay str))
+#+end_src
+
+***** THULAC
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-thulac-overlay-alist
+    (list (cons "n" cnhl-overlay-1)
+	  (cons "r" cnhl-overlay-1)
+	  (cons "j" cnhl-overlay-1)
+	  (cons "u" cnhl-overlay-6)
+	  (cons "y" cnhl-overlay-6)
+	  (cons "h" cnhl-overlay-6)
+	  (cons "k" cnhl-overlay-6)
+	  (cons "v" cnhl-overlay-2)
+	  (cons "i" cnhl-overlay-2)
+	  (cons "a" cnhl-overlay-3)
+	  (cons "d" cnhl-overlay-5)
+	  (cons "c" cnhl-overlay-5)
+	  (cons "p" cnhl-overlay-5)
+	  (cons "g" cnhl-overlay-7)
+	  (cons "w" cnhl-overlay-7)
+	  (cons "x" cnhl-overlay-7)
+	  (cons "e" cnhl-overlay-7)
+	  (cons "o" cnhl-overlay-7))
+    "存储词性标记首字母与 overlay 对应关系的 alist")
+
+  (defun cnhl-thulac-get-overlay (str)
+    "匹配词性类型对应的face"
+    (or (cdr (assoc (string (aref str 0)) cnhl-thulac-overlay-alist))
+	cnhl-overlay-4)) ;; 用首字母从 alist 中获取值
+#+end_src
+
+*** 文本截取
+
+**** 设置单句最大长度
+
+为爱写大长句和使用特殊标点符号的同学设计，旨在降低性能消耗。
+
+默认为 100 ，句子前后各 50 。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-sentence-max-length 100)
+#+end_src
+
+**** 获取光标所在句子的首尾位置
+
+首先需要一段对语句标点进行匹配的正则表达式，将其存储为 =cnhl-punc-regexp= 变量。
+
+（匹配星号记得打两个转义哈哈）
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-punc-regexp
+    "[，。？；：、‘’“”…—！（）～《》「」【】〖〗『』〔〕,.?!():;/\\*#]")
+#+end_src
+
+之后定义 =cnhl-detect-sentence= 函数匹配当前句子。
+
+该方法返回一个点对列表，第一项是句子开始位置（包括上一句的标点），第二项是句子结
+束位置。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-detect-sentence (&optional beg end)
+    (save-excursion
+      (unless end
+	(unless beg
+	  (setq beg (point)))
+	(setq end beg))
+      (let* ((max-len (/ cnhl-sentence-max-length 2))
+	     (min-pos (max (- beg max-len) (point-min)))
+	     (max-pos (min (+ end max-len) (point-max)))
+	     (beg-r (or (progn
+			  (goto-char beg)
+			  (search-backward-regexp cnhl-punc-regexp min-pos t))
+			min-pos))
+	     (end-r (or (progn
+			  (goto-char end)
+			  (search-forward-regexp cnhl-punc-regexp max-pos t))
+			max-pos)))
+	(list beg-r end-r))))
+#+end_src
+
+**** 预处理字符串
+
+（已废弃：预处理字符串将导致英文句子粘连成一个单词，按词移动函数无法匹配到其位
+置，导致按词移动失效。）
+
+将待传入 THULAC 分析的字符串进行预处理，去除其中的空格、特定符号等。
+
+#+begin_src emacs-lisp :tangle no
+  (defvar cnhl-content-regexp
+    "[\u2e80-\u9fa5，。？；：、‘’“”…—！（）～《》「」【】〖〗『』〔〕,.?!():;/\\*#a-zA-Z0-9]")
+
+  (defvar cnhl-not-content-regexp
+    "[^\u2e80-\u9fa5，。？；：、‘’“”…—！（）～《》「」【】〖〗『』〔〕,.?!():;/\\*#a-zA-Z0-9]")
+
+  (defun cnhl-string-pretreatment (beg end)
+    (replace-regexp-in-string cnhl-not-content-regexp ""
+			      (buffer-substring-no-properties beg end)))
+
+  ;; test: (apply #'cnhl-string-pretreatment (cnhl-detect-sentence 24033))
+#+end_src
+
+*** 解析 NLP 分析结果
+
+**** THULAC
+
+解析 THULAC 返回的分析结果为 **分词数据** 和 **词性数据** ，分别用于分词和高亮。
+
+THULAC 返回值示例： "我_r 爱_v 北京_ns 天安门_ns"
+
+本段代码中，首先依照空格将整个字符串拆为列表，提取词语部分收入分词数据中。空格、
+回车、下划线和以下划线开头的分析结果将在这里被过滤掉。
+
+之后判断词性结果的类型数字，根据类型在词性数据列表中插入一定的数字组成一个与文字
+数量相对应的词性列表，最终根据该列表进行高亮。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-thulac-string-process (str)
+    (setq str (replace-regexp-in-string "\s_w\s\\|\s__w\\|\n" "" str))
+    (let ((word-prop-lst (cl-loop for i in (split-string str " ")
+			       when (= (string-to-char i) 95)
+			       do (setq i (substring i 1 (length i)))
+			       collect i into result
+			       finally (cl-return result)))
+	  (word-lst nil)
+	  (prop-lst nil))
+      (dolist (item word-prop-lst)
+	(let ((i (split-string item "_")))
+	  (push (car i) word-lst) ;; 插入词语
+	  (dotimes (j (length (car i)))
+	    (push (cadr i) prop-lst))))
+      (cons (reverse word-lst) (reverse prop-lst))))
+
+  ;; (cnhl-thulac-string-process
+  ;;  (cnhl-thulac-string "\"我_r 爱_v 北京_ns 天安门_ns\""))
+#+end_src
+
+*** 使用 NLP 分析句子并存储解析结果
+
+设计思路：使用 NLP 分析句子，根据分析结果确定每一个字应该使用什么颜色的 overlay
+，将这些 overlays 按顺序存在 =cnhl-last-prop-list= 中。贴 overlay 时，只需将光标
+移至上次分析的开头，而后把 overlays 一个字一个字贴上去即可。
+
+**** 存储分析结果的变量
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-last-word-list nil
+    "词语列表，存储分词后的所有词汇们。")
+  (defvar cnhl-last-prop-list nil
+    "词性列表，存储与被分析句的字数相对应数量的词性标记
+  使用何种词性标记由 NLP 决定。")
+  (defvar cnhl-last-region-list nil
+    "上次分析的句子的起始与结束位置。")
+#+end_src
+
+**** NLP 分析函数的基础形态
+
+用于在第一次被调用时初始化对应的 NLP ，此后该函数将被初始化函数设置为指向该 NLP
+所对应的分析函数。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-nlp-analyse-sentence (&optional beg end)
+    (cnhl-nlp-init)
+    (cnhl-nlp-analyse-sentence beg end))
+#+end_src
+
+**** THULAC 的分析函数
+
+截取句子 -> 送入分析 -> 解析结果 -> 存储结果。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-thulac-analyse-sentence (&optional beg end)
+    (let* ((region (cnhl-detect-sentence beg end))
+	   (result (cnhl-thulac-string-process
+		    (cnhl-thulac-string
+		     (apply #'buffer-substring-no-properties region)))))
+      (setq cnhl-last-word-list (car result)
+	    cnhl-last-prop-list (cdr result)
+	    cnhl-last-region-list region)))
+
+  ;; (cnhl-nlp-init)
+  ;; (cnhl-nlp-analyse-sentence 25141)
+#+end_src
+
+*** 执行高亮
+
+食用方法：先调用 NLP 分析函数分析，然后调用它即可。
+
+跳往开头 -> 确定下一个字没有被分析函数排出去（不是空格、回车、下划线） -> 确定下
+一个字上没有其它 overlay -> 从表里抓出一个 overlay 贴上去 -> 下一个
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  ;; (save-excursion
+  ;;   (profiler-start 'cpu+mem)
+  ;;   (goto-char 16056)
+  ;;   (dotimes (i 600)
+  ;;     (face-at-point)
+
+  ;;     (forward-char))
+  ;;   (profiler-stop)
+  ;;   (profiler-report))
+
+  (defun cnhl-hl ()
+    (save-excursion
+      (goto-char (car cnhl-last-region-list))
+      (let ((prop-list cnhl-last-prop-list))
+	(while prop-list
+	  (when (string-match-p "[^\s\n_]"
+				(char-to-string (following-char)))
+	    (if (let ((f (face-at-point)))
+		  (or (null f)
+		      (string= (substring (symbol-name f) 0 4)
+			       "cnhl")))
+		(move-overlay
+		 (copy-overlay (cnhl-nlp-get-overlay (pop prop-list)))
+		 (point) (1+ (point))
+		 (current-buffer))
+	      (pop prop-list)))
+	  (forward-char)))))
+
+  ;; (cnhl-nlp-analyse-sentence 26763)
+  ;; (cnhl-hl)
+#+end_src
+
+*** 输入时实时高亮效果的实现
+
+确定是在 =cnhl-mode= 下 -> 设置 timer ：如果有延时就给去了，按照旧的起始位置重上
+/ 如果没有就新上一个。
+
+Timer 的内容：先把自己清空 -> 将从设定的起始位置到当前光标所在位置的区域高亮。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defvar cnhl-after-change-timer nil)
+  (defvar cnhl-after-change-begin nil)
+
+  (defun cnhl-hl-after-change (beg end len)
+    (when cnhl-mode
+      (if cnhl-after-change-timer
+	  (cancel-timer cnhl-after-change-timer)
+	(setq cnhl-after-change-beginning beg))
+      (setq cnhl-after-change-timer
+	    (run-at-time
+	     "0.5" nil #'(lambda ()
+			   (setq cnhl-after-change-timer nil)
+			   (cnhl-nlp-analyse-sentence
+			    cnhl-after-change-beginning
+			    (point))
+			   (cnhl-hl))))))
+#+end_src
+
+*** 数个手动高亮一定区域的方法
+
+**** 高亮全 buffer
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-hl-buffer ()
+    " 一口气高亮整个 buffer 。注意，若使用依存句法分析进行高亮将会较慢。"
+    (interactive)
+    (cnhl-nlp-analyse-sentence (point-min) (point-max))
+    (cnhl-hl))
+#+end_src
+
+**** 高亮当前段落
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-hl-paragraph ()
+    "高亮光标所在段落。"
+    (interactive)
+    (save-excursion
+      (cnhl-nlp-analyse-sentence
+       (progn (backward-paragraph)
+	      (search-forward-regexp "[^\s]"))
+       (progn (forward-paragraph)
+	      (1- (search-backward-regexp "[^\s]")))))
+    (cnhl-hl))
+#+end_src
+
+**** 高亮当前句
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-hl-sentence ()
+    "高亮光标所在句。"
+    (interactive)
+    (cnhl-nlp-analyse-sentence)
+    (cnhl-hl))
+#+end_src
+
+*** 分词
+
+设计思路：先取得光标左右最临近的词语的位置，再根据需求进行跳转、插入删除等操作。
+
+**** 获取光标周围的词语位置
+
+返回本词词末、上词词末、上上词词末。
+
+设计思路：
+
+先判断光标是否位于上次分析的句子中，如果不在就先分析；
+
+之后从第一个词开始遍历整个分词列表，不断比对词末位置相对于光标的位置，直到取得光
+标词的词末以及光标前一词的词末。
+
+值得注意的是，为了减少代码的逻辑量，我没有对“光标在词中 / 光标在词末”两种情况分
+别处理，而是统一按照在词末的方式处理。不过这在使用体验上不会有什么影响——词法分析
+实在是太细致了……
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (defun cnhl-get-word-pos-arround ()
+    (let ((beg (car cnhl-last-region-list))
+	  (end (cadr cnhl-last-region-list))
+	  (p-now (point)))
+      (if (or (>= p-now end)
+	      (<= p-now beg))
+	  (progn (cnhl-nlp-analyse-sentence
+		  p-now (+ p-now 1))
+		 (cnhl-get-word-pos-arround))
+	(save-excursion
+	  (goto-char beg)
+	  (let ((p beg)
+		(prev-1 beg)
+		(prev-2 beg))
+	    (cl-dolist (word cnhl-last-word-list)
+	      (setq prev-2 prev-1
+		    prev-1 p
+		    p (search-forward word))
+	      (when (> p p-now)
+		(cl-return (list prev-2 prev-1 p)))))))))
+#+end_src
+
+**** 覆盖原本的按词操作函数
+
+先用 advice around 模式覆写 forward-word 函数，之后重新加载 emacs 本身的按词操作
+函数，简单实现中文按词操作~
+
+这段代码将被插入 =cnhl-mode= 代码块内，以按需加载。
+
+#+name: cnhl/word
+#+begin_src emacs-lisp :tangle no
+  (define-advice forward-word
+      (:around (orig-func &optional arg)
+	       cnhl-forward-word)
+    (if cnhl-mode
+	(if (< arg 0)
+	    (dotimes (i (- arg))
+	      (goto-char (car (cnhl-get-word-pos-arround)))
+	      t)
+	  (dotimes (i (or arg 1))
+	    (goto-char (caddr (cnhl-get-word-pos-arround)))
+	    t))
+      (funcall orig-func arg)))
+
+  (load "simple.el.gz")
+  (load "subr.el")
+#+end_src
+
+*** 定义 minor mode
+
+让这个东东有点插件的样子哈哈。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no") :noweb yes
+  (defcustom cnhl-lighter
+    " Cnhl"
+    "Cnhl 的 Mode line 提示符。"
+    :type '(choice (const :tag "No lighter" "") string)
+    :safe 'stringp)
+
+  (defcustom cnhl-mode-hook '()
+    "flex mode hook."
+    :type 'hook
+    :group 'cnhl)
+
+  (define-minor-mode cnhl-mode
+    "Cnhl mode."
+    :init-value nil
+    :lighter cnhl-lighter
+    (add-hook 'after-change-functions 'cnhl-hl-after-change)
+    (unless (advice-member-p 'forward-word@cnhl-forward-word
+			     'forward-word)
+      <<cnhl/word>>
+      )
+    (run-hooks 'cnhl-mode-hook))
+#+end_src
+
+*** 已矣
+
+#+begin_quote
+步余马于兰臯兮，驰椒丘且焉止息。
+#+end_quote
+
+=Cnhl= 结束于此。
+
+#+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
+  (provide 'cnhl)
+
+  ;;; cnhl.el ends here
+#+end_src
+
+**  =Cnhl Dynamic Module= 部分源代码
+
+为了更好地调用 NLP 后端， =Cnhl= 采用 =Dynamic module= 方式调用并返回 NLP 的分析
+数据。这部分源码在这里，同样写了较为详细的注解。
+
+在此向伟大的 [[https://github.com/CarlGao4][GWQ 同学]] 致以诚挚的敬意，他一个午休帮我 de 掉了 12 个 bug ，今年他
+生日的时候我一定要再把他的名字往我的网站上挂俩月~~
+
+欢迎大家去体验他的 [[https://github.com/CarlGao4/Demucs-Gui][Demucs-Gui]] 项目，对音频特征提取工具 Demucs 进行了算法优化和图
+形化，预计将于 2022 年 4 月前发布第一版。其实他的初衷是帮助我们年级英语配音大赛
+各班的参赛组消除视频中的人声……
+
+*** 头文件与命名空间
+
+引用 Dynamic module 和 THULAC 的头文件。
+
+#+begin_src cpp :tangle (or (bound-and-true-p cnhl-thulac-export-path) "no")
+  #include <iostream>
+  #include <emacs-module.h>
+  #include "thulac/include/thulac.h"
+
+  using namespace std;
+#+end_src
+
+*** 必要的全局变量
+
+=plugin_is_GPL_compatible= GPL 标识~
+
+=t= 是 THULAC 类的实例；
+
+=initialized= 标识 THULAC 是否已初始化过。
+
+#+begin_src cpp :tangle (or (bound-and-true-p cnhl-thulac-export-path) "no")
+  int plugin_is_GPL_compatible;
+
+  THULAC t;
+
+  bool initialized = false;
+#+end_src
+
+*** 摘抄的轮子：把收到的 Emacs 参数转为字符串
+
+需要被初始化和分析函数调用，所以直接放在前面~
+
+#+begin_src cpp :tangle (or (bound-and-true-p cnhl-thulac-export-path) "no")
+  static char *
+  retrieve_string (emacs_env *env, emacs_value str)
+  {
+    char *buf = NULL;
+    ptrdiff_t size = 0;
+
+    env->copy_string_contents (env, str, NULL, &size);
+
+    buf = (char *) malloc (size);
+    if (buf == NULL) return NULL;
+
+    env->copy_string_contents (env, str, buf, &size);
+
+    return buf;
+  }
+#+end_src
+
+
+*** 初始化 THULAC 类
+
+即 =cnhl-thulac-init= 函数，用于初始化 THULAC 类，将算法模型读入内存。
+
+如果已加载过，再次调用的话会卸载模型并重新加载。
+
+#+begin_src cpp :tangle (or (bound-and-true-p cnhl-thulac-export-path) "no")
+  static emacs_value
+  Fcnhl_thulac_module_init(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) noexcept
+  {
+    if (initialized)
+      {
+	t.deinit();
+      }
+    string module_path = retrieve_string(env, args[0]);
+    t.init(module_path.data(), NULL, 0, 0, 0, '_');
+    cout << "THULAC initialized!" << endl;
+    initialized = true;
+    return env->intern(env, "t");
+  }
+#+end_src
+
+*** 分析函数
+
+即 =cnhl-thulac-string= ，极度简单，如果 THULAC 实例已经初始化则把参数传入
+THULAC ，返回分析结果~
+
+#+begin_src cpp :tangle (or (bound-and-true-p cnhl-thulac-export-path) "no")
+  static emacs_value
+  Fcnhl_thulac_string(emacs_env *env, ptrdiff_t nargs, emacs_value args[], void *data) noexcept
+  {
+    if (initialized != true)
+      {
+	cout << "THULAC module hasn't initialized!" << endl;
+	return env->intern(env, "");
+      }
+    string s = retrieve_string(env, args[0]);
+    THULAC_result r = t.cut(s);
+    s = t.toString(r);
+    return env->make_string(env, s.data(), s.length());
+  }
+#+end_src
+
+*** 绑定 Module 函数到 Emacs 函数
+
+摘抄摘抄~
+
+#+begin_src cpp :tangle (or (bound-and-true-p cnhl-thulac-export-path) "no")
+  static void
+  provide (emacs_env *env, const char *feature)
+  {
+      emacs_value Qfeat = env->intern (env, feature);
+      emacs_value Qprovide = env->intern (env, "provide");
+      emacs_value args[] = { Qfeat };
+
+      env->funcall (env, Qprovide, 1, args);
+  }
+
+  static void
+  bind_function (emacs_env *env, const char *name, emacs_value Sfun)
+  {
+      emacs_value Qfset = env->intern (env, "fset");
+      emacs_value Qsym = env->intern (env, name);
+      emacs_value args[] = { Qsym, Sfun };
+
+      env->funcall (env, Qfset, 2, args);
+  }
+
+  int
+  emacs_module_init(struct emacs_runtime *ert) noexcept
+  {
+  
+    emacs_env *env = ert->get_environment (ert);
+  
+  #define DEFUN(lsym, csym, amin, amax, doc, data)			\
+    bind_function (env, lsym,						\
+		   env->make_function (env, amin, amax, csym, doc, data))
+    DEFUN("cnhl-thulac-string", Fcnhl_thulac_string, 1, 1, "Send string to THULAC and return the result.", NULL);
+    DEFUN("cnhl-thulac-module-init", Fcnhl_thulac_module_init, 1, 1, "Load THULAC module.", NULL);
+  
+  #undef DEFUN
+  
+    provide(env, "cnhl-thulac");
+    return 0;
+  }
+#+end_src
+
+** 结语
+
+#+begin_quote
+　　　　　　辛丑咏 Emacs
+
+　　铸炼琢磨五九年，春秋一去尔一坚。
+
+　　力出盘古开寰宇，朗若云神御九天。
+
+　　四海芳邻常伴侧，玲珑情虑每增添。
+
+　　料得此心君身系，无奈今生爱恨间。
+#+end_quote
