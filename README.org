@@ -19,8 +19,7 @@ Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中�
 
 将本 Org 文件下载到电脑或 Termux 里并用 Emacs 打开。
 
-对于 [[https://github.com/3vau/cnhl][Cnhl Github 项目]]，可以克隆仓库或者复制 Raw 原始文件并 **按下 =C-x C-s= 把它
-保存到任何位置** ；
+对于 [[https://github.com/3vau/cnhl][Cnhl Github 项目]]，可以克隆仓库或者复制 Raw 原始文件；
 
 对于[[http://rosa.sdf.org][我的个人网站]]，可以访问[[http://rosa.sdf.org/rosa.org][这里]]获取网页源 Org 文件，并翻到这个位置。
 
@@ -41,7 +40,7 @@ Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中�
   (setq cnhl-thulac-export-path
 	(file-name-concat cnhl-export-dir "cnhl-thulac.cpp"))
 
-  (org-babel-tangle-file (buffer-file-name))
+  (org-babel-tangle)
 
   (cd cnhl-export-dir)
 
@@ -947,4 +946,6 @@ THULAC ，返回分析结果~
 　　四海芳邻常伴侧，玲珑情虑每增添。
 
 　　料得此心君身系，无奈今生爱恨间。
+
+　　　　　　　　　　—— Rosario S.E.
 #+end_quote
