@@ -167,13 +167,15 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 - [[https://emacs-china.org/u/snail_xhr][@snail_xhr]]
 - [[https://emacs-china.org/u/K-gihu][@K-gihu]]
 - [[https://emacs-china.org/u/p1uxtar][@p1uxtar]]
-- [[https://emacs-china.org/u/ISouthRain][ISouthRain]]
+- [[https://emacs-china.org/u/ISouthRain][@ISouthRain]]
 
 感谢 [[https://github.com/CarlGao4][GWQ 同学]] 对 =cnhl= C++ 部分代码开发的帮助。
 
-*欢迎大家去体验他的 [[https://github.com/CarlGao4/Demucs-Gui][Demucs-Gui]] 项目，对音频特征提取工具 Demucs 进行了算法优化和图
+#+begin_quote
+欢迎大家去体验他的 [[https://github.com/CarlGao4/Demucs-Gui][Demucs-Gui]] 项目，对音频特征提取工具 Demucs 进行了算法优化和图
 形化，预计将于 2022 年 4 月前发布第一版。其实他的初衷是帮助我们年级英语配音大赛
-各班的参赛组消除视频中的人声……*
+各班的参赛组消除视频中的人声……
+#+end_quote
 
 感谢大家的使用、鼓励与认可！
 
