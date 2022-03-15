@@ -41,7 +41,7 @@ Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中�
 具。
 
 #+begin_src emacs-lisp :tangle no
-  (defvar cnhl-export-dir "~/.emacs.d/cnhl")
+  (defvar cnhl-export-dir "~/path/to/your/dir")
 
   (setq cnhl-export-path
 	(file-name-concat cnhl-export-dir "cnhl.el"))
