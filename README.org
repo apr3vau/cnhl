@@ -13,6 +13,14 @@ Chinese Highlight ——中文语法高亮与分词工具
 Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中如同代码高亮一般根据
 词性高亮中文文本，亦可以进行按词移动、按词编辑等操作。
 
+** 截图
+
+[[file:screenshots/1.gif]]
+
+[[file:screenshots/2.gif]]
+
+[[file:screenshots/3.png]]
+
 ** 安装方法
 
 *** 第一步：下载本 Org 的源文件
@@ -100,8 +108,12 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 
   (cnhl-mode)
 #+end_src
+。
+=cnhl= 默认颜色适配深色主题，
 
-*** 第五步：持久化配置
+
+
+*** 第五步：配置 =cnhl=
 
 将你在第二步时设置的导出位置加入 =load-path= ，并 =(require 'cnhl)= 以在启动时加
 载 =Cnhl= 。
@@ -157,6 +169,12 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 - [[https://emacs-china.org/u/p1uxtar][@p1uxtar]]
 - [[https://emacs-china.org/u/ISouthRain][ISouthRain]]
 
+感谢 [[https://github.com/CarlGao4][GWQ 同学]] 对 =cnhl= C++ 部分代码开发的帮助。
+
+*欢迎大家去体验他的 [[https://github.com/CarlGao4/Demucs-Gui][Demucs-Gui]] 项目，对音频特征提取工具 Demucs 进行了算法优化和图
+形化，预计将于 2022 年 4 月前发布第一版。其实他的初衷是帮助我们年级英语配音大赛
+各班的参赛组消除视频中的人声……*
+
 感谢大家的使用、鼓励与认可！
 
 ---
@@ -196,7 +214,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
   ;;; cnhl.el --- Make Chinese highlight lexically -*- lexical-binding: t -*-
 
-  ;; Copyright (C) 2022 Rosario S.E.
+  ;; Copyright (C) 2022 Rosario S.E., CarlGao4
 
   ;; Author: Rosario S.E. <ser3vau@gmail.com>
   ;; URL: https://github.com/3vau/cnhl
@@ -594,7 +612,7 @@ THULAC 返回值示例： "我_r 爱_v 北京_ns 天安门_ns"
       (goto-char (car cnhl-last-region-list))
       (let ((prop-list cnhl-last-prop-list))
 	(while prop-list
-	  (when (string-match-p "[^\s\n_]"
+	  (when (string-match-p "[^\s\n_\u3000]"
 				(char-to-string (following-char)))
 	    (if (let ((f (face-at-point)))
 		  (or (null f)
