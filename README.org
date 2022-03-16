@@ -187,6 +187,7 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 - [[https://emacs-china.org/u/K-gihu][@K-gihu]]
 - [[https://emacs-china.org/u/p1uxtar][@p1uxtar]]
 - [[https://emacs-china.org/u/ISouthRain][@ISouthRain]]
+- [[https://emacs-china.org/u/BeginnerC][@BeginnerC]]
   
 感谢 [[https://github.com/CarlGao4][GWQ 同学]] 对 =cnhl= C++ 部分代码开发的帮助。
 
