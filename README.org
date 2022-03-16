@@ -44,7 +44,7 @@ Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中�
 具。
 
 #+begin_src emacs-lisp :tangle no
-  (defvar cnhl-export-dir "~/.emacs.d/cnhl")
+  (defvar cnhl-export-dir "~/path/to/your/dir")
 
   (setq cnhl-export-path
 	(file-name-concat cnhl-export-dir "cnhl.el"))
@@ -60,9 +60,6 @@ Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中�
    "git clone --depth 1 https://github.com/thunlp/THULAC.git ./thulac ; g++ -c -I ./thulac/include -std=c++11 cnhl-thulac.cpp ; g++ -shared cnhl-thulac.o -o cnhl-thulac.so ; rm -rf cnhl-thulac.cpp cnhl-thulac.o thulac/"
    "*Cnhl Compile Module*")
 #+end_src
-
-#+RESULTS:
-: #<window 21 on *Cnhl Compile Module*>
 
 *** 第三步：配置 NLP 工具
 
@@ -118,9 +115,6 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 
   (cnhl-mode)
 #+end_src
-
-#+RESULTS:
-: t
 
 将以下代码中字符串内的值填为你设置的 =cnhl-export-dir= 的值，并将它们加入到你的
 配置文件中，以完成对 =Cnhl= 的安装。
@@ -551,7 +545,9 @@ THULAC 返回值示例： "我_r 爱_v 北京_ns 天安门_ns"
 #+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
   (defun cnhl-thulac-string-process (str)
     (setq str (replace-regexp-in-string
-	       "\s_w\s\\|\n" "" str))
+	       "\n" "" str)
+	  str (replace-regexp-in-string
+	       "\s\s_w" "" str))
     (let ((word-prop-lst (split-string str " "))
 	  (word-lst nil)
 	  (prop-lst nil))
