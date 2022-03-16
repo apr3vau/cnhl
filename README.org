@@ -15,12 +15,15 @@ Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中�
 
 ** 截图
 
+[[file:res/4.gif]]
+
+[[file:res/5.gif]]
+
 [[file:res/1.gif]]
 
 [[file:res/2.gif]]
 
 [[file:res/3.png]]
-
 
 ** 安装方法
 
@@ -675,7 +678,7 @@ Timer 的内容：先把自己清空 -> 将从设定的起始位置到当前光�
   (defun cnhl-hl-buffer ()
     " 一口气高亮整个 buffer 。注意，若使用依存句法分析进行高亮将会较慢。"
     (interactive)
-    (cnhl-nlp-analyse-sentence (point-min) (point-max))
+    (cnhl-nlp-analyse-sentence (point-min) (- (point-max) 2))
     (cnhl-hl))
 #+end_src
 
