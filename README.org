@@ -57,9 +57,12 @@ Cnhl 是 Emacs 的一个中文文本高亮与分词工具，可以在 Emacs 中�
   (cd cnhl-export-dir)
 
   (async-shell-command
-   "git clone --depth 1 https://github.com/thunlp/THULAC.git ; g++ -c -I ./thulac/include -std=c++11 cnhl-thulac.cpp ; g++ -shared cnhl-thulac.o -o cnhl-thulac.so ; rm -rf cnhl-thulac.c cnhl-thulac.o thulac/"
+   "git clone --depth 1 https://github.com/thunlp/THULAC.git ./thulac ; g++ -c -I ./thulac/include -std=c++11 cnhl-thulac.cpp ; g++ -shared cnhl-thulac.o -o cnhl-thulac.so ; rm -rf cnhl-thulac.cpp cnhl-thulac.o thulac/"
    "*Cnhl Compile Module*")
 #+end_src
+
+#+RESULTS:
+: #<window 21 on *Cnhl Compile Module*>
 
 *** 第三步：配置 NLP 工具
 
@@ -90,8 +93,11 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 下载并解压 =THULAC= 模型后，将下面这段代码中 =cnhl-thulac-module-path= 的值改为
 模型所在目录，按下 =C-c C-c= 执行，并将这段代码复制到你的配置文件中。
 
+（ THULAC C++ 版无法识别“~”，所以务必使用 =expand-file-name= 。）
+
 #+begin_src emacs-lisp :tangle no
-  (setq cnhl-thulac-module-path "~/path/to/module/dir")
+  (setq cnhl-thulac-module-path
+	(expand-file-name "~/path/to/module/dir"))
 #+end_src
 
 *** 第四步：开始使用 =Cnhl=
@@ -112,6 +118,9 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 
   (cnhl-mode)
 #+end_src
+
+#+RESULTS:
+: t
 
 将以下代码中字符串内的值填为你设置的 =cnhl-export-dir= 的值，并将它们加入到你的
 配置文件中，以完成对 =Cnhl= 的安装。
@@ -188,6 +197,7 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 - [[https://emacs-china.org/u/p1uxtar][@p1uxtar]]
 - [[https://emacs-china.org/u/ISouthRain][@ISouthRain]]
 - [[https://emacs-china.org/u/BeginnerC][@BeginnerC]]
+  
   
 感谢 [[https://github.com/CarlGao4][GWQ 同学]] 对 =cnhl= C++ 部分代码开发的帮助。
 
@@ -301,7 +311,7 @@ NLP 是“自然语言处理”的缩写， Cnhl 使用第三方 NLP 工具作�
 
 #+begin_src emacs-lisp :tangle (or (bound-and-true-p cnhl-export-path) "no")
   (defvar cnhl-thulac-module-path
-    (expand-file-name "~/.emacs.d/thulac-model/models"))
+    (bound-and-true-p cnhl-thulac-module-path))
 #+end_src
 
 **** 初始化 NLP 并绑定对应的函数
