@@ -106,7 +106,7 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 （注意，手动高亮命令不需要开启 =cnhl-mode= 就可以使用。）
 
 #+begin_src emacs-lisp :tangle no
-  (add-to-list 'load-path “~/path/to/your/dir”)
+  (add-to-list 'load-path cnhl-export-dir)
 
   (require 'cnhl)
 
